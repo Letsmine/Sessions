@@ -1,0 +1,6 @@
+name: ${project.name}
+main: eu.letsmine.session.bukkit.SessionPlugin
+version: '${project.version}'
+description: ${project.description}
+author: KleinCrafter
+api-version: 1.16

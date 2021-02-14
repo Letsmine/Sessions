@@ -1,0 +1,5 @@
+name: ${project.name}
+main: eu.letsmine.session.bungee.SessionPlugin
+version: '${project.version}'
+description: ${project.description}
+author: KleinCrafter
