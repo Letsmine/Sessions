@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Function;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class SessionObject {
@@ -22,20 +21,12 @@ public class SessionObject {
 	}
 	
 	public <V> void set(String path, V value) {
-		objects.put(path, new AtomicReference<V>(value));
-	}
-	
-	/**
-	 * 
-	 * @param path 
-	 * @param update (old) -> old != null ? old : new SessionMember<T>(...)
-	 */
-	public <V> void set(String path, Function<AtomicReference<V>, AtomicReference<V>> update) {
-		var tmp = objects.get(path);
+		AtomicReference<V> tmp = objects.get(path);
 		if (tmp != null) {
-			tmp = update.apply(tmp);
+			tmp.set(value);
+		} else {
+			objects.put(path, new AtomicReference<V>(value));
 		}
-		objects.put(path, tmp);
 	}
 	
 	public <V> AtomicReference<V> remove(String path) {
