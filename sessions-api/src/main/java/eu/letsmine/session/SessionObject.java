@@ -1,5 +1,6 @@
 package eu.letsmine.session;
 
+import java.lang.invoke.VarHandle;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,7 +11,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class SessionObject {
 	
 	private final UUID uuid;
-	private final HashMap<String, AtomicReference> objects = new HashMap<String, AtomicReference>();
+	private final Map<String, AtomicReference> objects = Collections.synchronizedMap(new HashMap<String, AtomicReference>());
 	
 	public SessionObject(UUID uuid) {
 		this.uuid = uuid;
@@ -19,32 +20,40 @@ public class SessionObject {
 	public UUID getUUID() {
 		return uuid;
 	}
-	
-	public <V> void set(String path, V value) {
-		AtomicReference<V> tmp = objects.get(path);
+
+    /**
+     * Create a new Session Entry or update the existing.
+     * Sets the value to {@code newValue}, with memory effects as specified by {@link VarHandle#setVolatile}.
+     *
+     * @param newValue the new value
+     */
+	public <V> void set(String key, V newValue) {
+		AtomicReference<V> tmp = objects.get(key);
 		if (tmp != null) {
-			tmp.set(value);
+			tmp.set(newValue);
 		} else {
-			objects.put(path, new AtomicReference<V>(value));
+			objects.put(key, new AtomicReference<V>(newValue));
 		}
 	}
 	
-	public <V> AtomicReference<V> remove(String path) {
-		return objects.remove(path);
+	public <V> AtomicReference<V> remove(String key) {
+		return objects.remove(key);
 	}
 	
-	public <V> AtomicReference<V> get(String path) {
-		return objects.get(path);
+	public <V> AtomicReference<V> get(String key) {
+		return objects.get(key);
 	}
 	
-	public boolean contains(String path) {
-		return objects.containsKey(path);
+	public boolean contains(String key) {
+		return objects.containsKey(key);
 	}
-	
+
 	/**
-	 * unmodifiableMap
-	 * @return
-	 */
+     * Returns an <a href="Collection.html#unmodview">unmodifiable view</a> of all Session Entrys.
+     * Query operations on the returned map "read through" the map.
+     * Attempts to modify the returned map, whether direct or via its collection views, result in an {@code UnsupportedOperationException}.<p>
+     * @return an unmodifiable view of the specified map.
+     */
 	public Map<String, AtomicReference> getSessionMembers() {
 		return Collections.unmodifiableMap(objects);
 	}

@@ -46,7 +46,7 @@ public class SessionPlugin extends JavaPlugin implements Listener {
 	private void onPlayerLeave(UUID uuid) {
 		if (SessionAPI.hasSessionObject(uuid)) {
 			var so = SessionAPI.getSessionObject(uuid);
-			var hs = so.<Long>get("timeout");
+			var hs = so.<Long>get(SessionAPI.SessionKeyTimeout);
 			if (hs != null) {
 				var timeout = hs.get();
 				delList.add(uuid);
